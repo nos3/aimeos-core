@@ -38,18 +38,9 @@ class LocaleAddTestData extends \Aimeos\MW\Setup\Task\MShopAddLocaleData
 
 
 	/**
-	 * Executes the task for MySQL databases.
-	 */
-	protected function mysql()
-	{
-		$this->process();
-	}
-
-
-	/**
 	 * Adds locale test data.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$iface = '\\Aimeos\\MShop\\Context\\Item\\Iface';
 		if( !( $this->additional instanceof $iface ) ) {
@@ -126,7 +117,7 @@ class LocaleAddTestData extends \Aimeos\MW\Setup\Task\MShopAddLocaleData
 		$localeSiteManager = $localeManager->getSubManager( 'site' );
 
 		$search = $localeSiteManager->createSearch();
-		$search->setConditions( $search->compare( '==', 'locale.site.code', array( 'unittest', 'unit' ) ) );
+		$search->setConditions( $search->compare( '==', 'locale.site.code', array( 'unittest' ) ) );
 
 		$sites = array();
 

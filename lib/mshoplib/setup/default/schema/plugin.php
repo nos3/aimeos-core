@@ -7,6 +7,7 @@
 
 
 return array(
+<<<<<<< HEAD
 	'sequence' => array(
 		'seq_msplu_id' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 
@@ -19,6 +20,8 @@ return array(
 			return $schema;
 		},
 	),
+=======
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	'table' => array(
 		'mshop_plugin_type' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 
@@ -27,7 +30,11 @@ return array(
 			$table->addColumn( 'id', 'integer', array( 'autoincrement' => true ) );
 			$table->addColumn( 'siteid', 'integer', array() );
 			$table->addColumn( 'domain', 'string', array( 'length' => 32 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'label', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'status', 'smallint', array() );
 			$table->addColumn( 'mtime', 'datetime', array() );
@@ -65,6 +72,12 @@ return array(
 			$table->addIndex( array( 'siteid', 'label' ), 'idx_msplu_sid_label' );
 			$table->addIndex( array( 'siteid', 'provider' ), 'idx_msplu_sid_provider' );
 			$table->addIndex( array( 'siteid', 'pos' ), 'idx_msplu_sid_pos' );
+<<<<<<< HEAD
+=======
+			$table->addIndex( array( 'siteid', 'mtime' ), 'idx_msplu_sid_mtime' );
+			$table->addIndex( array( 'siteid', 'ctime' ), 'idx_msplu_sid_ctime' );
+			$table->addIndex( array( 'siteid', 'editor' ), 'idx_msplu_sid_editor' );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 
 			$table->addForeignKeyConstraint( 'mshop_plugin_type', array( 'typeid' ), array( 'id' ),
 				array( 'onUpdate' => 'CASCADE', 'onDelete' => 'CASCADE' ), 'fk_msplu_typeid' );

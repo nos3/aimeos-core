@@ -80,6 +80,7 @@ abstract class Base
 	 *
 	 * @param integer $type Type of given value defined in \Aimeos\MW\DB\Statement\Base as constant
 	 * @param mixed $value Value which should be bound to the placeholder
+	 * @return integer PDO parameter type constant
 	 * @throws \Aimeos\MW\DB\Exception If the type is unknown
 	 */
 	protected function getPdoType( $type, $value )
@@ -127,7 +128,8 @@ abstract class Base
 			do
 			{
 				$count = 0; $temp = $part;
-				while( ( $count += substr_count( $part, '\'' ) ) % 2 !== 0 )
+				while( ( $pr = str_replace( array( '\'\'', '\\\'' ), '', $part ) ) !== false
+					&& ( $count += substr_count( $pr, '\'' ) ) % 2 !== 0 )
 				{
 					if( ( $part = next( $parts ) ) === false ) {
 						throw new \Aimeos\MW\DB\Exception( 'Number of apostrophes don\'t match' );

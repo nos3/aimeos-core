@@ -58,6 +58,42 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 	}
 
 
+	public function testAggregateTimes()
+	{
+		$search = $this->object->createSearch();
+		$search->setConditions( $search->compare( '==', 'order.editor', 'core:unittest' ) );
+		$search->setSortations( array( $search->sort( '-', 'order.cdate' ) ) );
+		$result = $this->object->aggregate( $search, 'order.cmonth' );
+
+		$this->assertEquals( 1, count( $result ) );
+		$this->assertEquals( 4, reset( $result ) );
+	}
+
+
+	public function testAggregateAddress()
+	{
+		$search = $this->object->createSearch();
+		$search->setConditions( $search->compare( '==', 'order.editor', 'core:unittest' ) );
+		$result = $this->object->aggregate( $search, 'order.base.address.countryid' );
+
+		$this->assertEquals( 1, count( $result ) );
+		$this->assertArrayHasKey( 'DE', $result );
+		$this->assertEquals( 4, reset( $result ) );
+	}
+
+
+	public function testAggregateMonth()
+	{
+		$search = $this->object->createSearch();
+		$search->setConditions( $search->compare( '==', 'order.editor', 'core:unittest' ) );
+		$result = $this->object->aggregate( $search, 'order.type' );
+
+		$this->assertEquals( 2, count( $result ) );
+		$this->assertArrayHasKey( 'web', $result );
+		$this->assertEquals( 3, $result['web'] );
+	}
+
+
 	public function testCleanup()
 	{
 		$this->object->cleanup( array( -1 ) );
@@ -104,6 +140,13 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
 		$actual = $this->object->getItem( $expected->getId() );
 		$this->assertEquals( $expected, $actual );
+	}
+
+
+	public function testSaveInvalid()
+	{
+		$this->setExpectedException( '\Aimeos\MShop\Order\Exception' );
+		$this->object->saveItem( new \Aimeos\MShop\Locale\Item\Standard() );
 	}
 
 
@@ -278,7 +321,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$total = 0;
 		$search = $this->object->createSearch();
 
-		$param = array( \Aimeos\MShop\Order\Item\Status\Base::STATUS_PAYMENT, \Aimeos\MShop\Order\Item\Base::PAY_RECEIVED );
+		$param = array( (string) \Aimeos\MShop\Order\Item\Status\Base::STATUS_PAYMENT, (string) \Aimeos\MShop\Order\Item\Base::PAY_RECEIVED );
 		$funcStatPayment = $search->createFunction( 'order.containsStatus', $param );
 
 		$expr = array();
@@ -335,7 +378,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$expr[] = $search->compare( '==', 'order.base.address.postal', '20146' );
 		$expr[] = $search->compare( '==', 'order.base.address.city', 'Hamburg' );
 		$expr[] = $search->compare( '==', 'order.base.address.state', 'Hamburg' );
-		$expr[] = $search->compare( '==', 'order.base.address.countryid', 'de' );
+		$expr[] = $search->compare( '==', 'order.base.address.countryid', 'DE' );
 		$expr[] = $search->compare( '==', 'order.base.address.languageid', 'de' );
 		$expr[] = $search->compare( '==', 'order.base.address.telephone', '055544332211' );
 		$expr[] = $search->compare( '==', 'order.base.address.email', 'test@example.com' );

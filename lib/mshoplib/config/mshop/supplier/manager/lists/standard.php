@@ -14,7 +14,7 @@ return array(
 				FROM "mshop_supplier_list" AS msupli
 				:joins
 				WHERE :cond
-				GROUP BY :key, msupli."id" /*-orderby*/, :order /*orderby-*/
+				GROUP BY :key, msupli."id" /*-columns*/ , :columns /*columns-*/
 				/*-orderby*/ ORDER BY :order /*orderby-*/
 				LIMIT :size OFFSET :start
 			) AS list
@@ -84,7 +84,7 @@ return array(
 			GROUP BY msupli."id", msupli."parentid", msupli."siteid", msupli."typeid",
 				msupli."domain", msupli."refid", msupli."start", msupli."end",
 				msupli."config", msupli."pos", msupli."status", msupli."mtime",
-				msupli."editor", msupli."ctime" /*-orderby*/, :order /*orderby-*/
+				msupli."editor", msupli."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -102,7 +102,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_supplier_list_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

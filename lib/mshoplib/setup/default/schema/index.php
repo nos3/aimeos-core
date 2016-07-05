@@ -18,7 +18,11 @@ return array(
 			$table->addColumn( 'attrid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'listtype', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'collation' => 'utf8_bin' ) );
+=======
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'mtime', 'datetime', array() );
 			$table->addColumn( 'ctime', 'datetime', array() );
 			$table->addColumn( 'editor', 'string', array( 'length' => 255 ) );
@@ -58,11 +62,19 @@ return array(
 			$table->addColumn( 'priceid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'listtype', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'currencyid', 'string', array( 'length' => 3 ) );
 			$table->addColumn( 'value', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
 			$table->addColumn( 'costs', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
 			$table->addColumn( 'rebate', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
 			$table->addColumn( 'taxrate', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
+=======
+			$table->addColumn( 'currencyid', 'string', array( 'length' => 3, 'fixed' => true ) );
+			$table->addColumn( 'value', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
+			$table->addColumn( 'costs', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
+			$table->addColumn( 'rebate', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
+			$table->addColumn( 'taxrate', 'decimal', array( 'precision' => 5, 'scale' => 2 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'quantity', 'integer', array() );
 			$table->addColumn( 'mtime', 'datetime', array() );
 			$table->addColumn( 'ctime', 'datetime', array() );
@@ -93,8 +105,11 @@ return array(
 			$table->addColumn( 'editor', 'string', array( 'length' => 255 ) );
 
 			$table->addUniqueIndex( array( 'prodid', 'siteid', 'textid', 'listtype' ), 'unq_msindte_p_s_tid_lt' );
+<<<<<<< HEAD
 			$table->addIndex( array( 'value' ), 'idx_msindte_value', array( 'fulltext' ) );
 			$table->addIndex( array( 'siteid' ), 'idx_msindte_sid' );
+=======
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 
 			return $schema;
 		},

@@ -7,6 +7,7 @@
 
 
 return array(
+<<<<<<< HEAD
 	'sequence' => array(
 		'seq_mslocsi_id' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 
@@ -19,6 +20,8 @@ return array(
 			return $schema;
 		},
 	),
+=======
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	'table' => array(
 
 		'mshop_locale_site' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
@@ -27,9 +30,15 @@ return array(
 
 			$table->addColumn( 'id', 'integer', array( 'autoincrement' => true ) );
 			$table->addColumn( 'parentid', 'integer', array() );
+<<<<<<< HEAD
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
 			$table->addColumn( 'label', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'config', 'text', array( 'length' => 0xffff ) );
+=======
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+			$table->addColumn( 'label', 'string', array( 'length' => 255 ) );
+			$table->addColumn( 'config', 'text', array( 'default' => '', 'length' => 0xffff ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'level', 'smallint', array() );
 			$table->addColumn( 'nleft', 'integer', array() );
 			$table->addColumn( 'nright', 'integer', array() );
@@ -59,8 +68,13 @@ return array(
 			$table->addColumn( 'editor', 'string', array( 'length' => 255 ) );
 
 			$table->setPrimaryKey( array( 'id' ), 'pk_mslocla_id' );
+<<<<<<< HEAD
 			$table->addIndex( array( 'siteid', 'status' ), 'idx_mslocla_status' );
 			$table->addIndex( array( 'siteid', 'label' ), 'idx_mslocla_label' );
+=======
+			$table->addIndex( array( 'siteid', 'status' ), 'idx_mslocla_sid_status' );
+			$table->addIndex( array( 'siteid', 'label' ), 'idx_mslocla_sid_label' );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 
 			$table->addForeignKeyConstraint( 'mshop_locale_site', array( 'siteid' ), array( 'id' ),
 				array( 'onUpdate' => 'CASCADE', 'onDelete' => 'SET NULL' ), 'fk_mslocla_siteid' );
@@ -72,7 +86,11 @@ return array(
 
 			$table = $schema->createTable( 'mshop_locale_currency' );
 
+<<<<<<< HEAD
 			$table->addColumn( 'id', 'string', array( 'length' => 3 ) );
+=======
+			$table->addColumn( 'id', 'string', array( 'length' => 3, 'fixed' => true ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'label', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'status', 'smallint', array() );
@@ -97,7 +115,11 @@ return array(
 			$table->addColumn( 'id', 'integer', array( 'autoincrement' => true ) );
 			$table->addColumn( 'siteid', 'integer', array() );
 			$table->addColumn( 'langid', 'string', array( 'length' => 5 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'currencyid', 'string', array( 'length' => 3 ) );
+=======
+			$table->addColumn( 'currencyid', 'string', array( 'length' => 3, 'fixed' => true ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'pos', 'integer', array() );
 			$table->addColumn( 'status', 'smallint', array() );
 			$table->addColumn( 'mtime', 'datetime', array() );

@@ -15,7 +15,7 @@ return array(
 				FROM "mshop_service_list" AS mserli
 				:joins
 				WHERE :cond
-				GROUP BY :key, mserli."id" /*-orderby*/, :order /*orderby-*/
+				GROUP BY :key, mserli."id" /*-columns*/ , :columns /*columns-*/
 				/*-orderby*/ ORDER BY :order /*orderby-*/
 				LIMIT :size OFFSET :start
 			) AS list
@@ -85,7 +85,7 @@ return array(
 			GROUP BY mserli."id", mserli."parentid", mserli."siteid", mserli."typeid",
 				mserli."domain", mserli."refid", mserli."start", mserli."end",
 				mserli."config", mserli."pos", mserli."status", mserli."mtime",
-				mserli."editor", mserli."ctime" /*-orderby*/, :order /*orderby-*/
+				mserli."editor", mserli."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -103,7 +103,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_service_list_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

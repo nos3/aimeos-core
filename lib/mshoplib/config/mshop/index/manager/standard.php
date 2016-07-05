@@ -27,7 +27,7 @@ return array(
 			FROM "mshop_product" AS mpro
 			:joins
 			WHERE :cond
-			GROUP BY mpro."id" /*-orderby*/, :order /*orderby-*/
+			GROUP BY mpro."id" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -44,14 +44,12 @@ return array(
 			) AS list
 		'
 	),
-	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
-	),
 	'optimize' => array(
 		'mysql' => array(
 			'ANALYZE TABLE "mshop_product"',
 			'ANALYZE TABLE "mshop_product_list"',
 		),
+		'pgsql' => array(),
 	),
 );
 

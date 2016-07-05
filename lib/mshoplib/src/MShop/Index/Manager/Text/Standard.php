@@ -71,7 +71,6 @@ class Standard
 		)
 	);
 
-	private $langIds;
 	private $subManagers;
 
 
@@ -425,19 +424,50 @@ class Standard
 		\Aimeos\MW\Common\Base::checkClassList( '\\Aimeos\\MShop\\Product\\Item\\Iface', $items );
 
 		$context = $this->getContext();
-		$sites = $context->getLocale()->getSitePath();
-		$siteid = $context->getLocale()->getSiteId();
-		$langIds = $this->getLanguageIds( $sites );
-		$editor = $context->getEditor();
-		$date = date( 'Y-m-d H:i:s' );
-
-
 		$dbm = $context->getDatabaseManager();
 		$dbname = $this->getResourceName();
 		$conn = $dbm->acquire( $dbname );
 
 		try
 		{
+			/** mshop/index/manager/text/standard/insert/mysql
+			 * Inserts a new text record into the product index database
+			 *
+			 * @see mshop/index/manager/text/standard/insert/ansi
+			 */
+
+			/** mshop/index/manager/text/standard/insert/ansi
+			 * Inserts a new text record into the product index database
+			 *
+			 * During the product index rebuild, texts related to a product
+			 * will be stored in the index for this product. All records
+			 * are deleted before the new ones are inserted.
+			 *
+			 * The SQL statement must be a string suitable for being used as
+			 * prepared statement. It must include question marks for binding
+			 * the values from the order item to the statement before they are
+			 * sent to the database server. The number of question marks must
+			 * be the same as the number of columns listed in the INSERT
+			 * statement. The order of the columns must correspond to the
+			 * order in the rebuildIndex() method, so the correct values are
+			 * bound to the columns.
+			 *
+			 * The SQL statement should conform to the ANSI standard to be
+			 * compatible with most relational database systems. This also
+			 * includes using double quotes for table and column names.
+			 *
+			 * @param string SQL statement for inserting records
+			 * @since 2014.03
+			 * @category Developer
+			 * @see mshop/index/manager/text/standard/cleanup/ansi
+			 * @see mshop/index/manager/text/standard/count/ansi
+			 * @see mshop/index/manager/text/standard/delete/ansi
+			 * @see mshop/index/manager/text/standard/insert/ansi
+			 * @see mshop/index/manager/text/standard/search/ansi
+			 * @see mshop/index/manager/text/standard/text/ansi
+			 */
+			$stmt = $this->getCachedStatement( $conn, 'mshop/index/manager/text/standard/insert' );
+
 			foreach( $items as $item )
 			{
 				$parentId = $item->getId(); //  id is not $item->getId() for sub-products
@@ -447,75 +477,8 @@ class Standard
 					$listTypes[$listItem->getRefId()][] = $listItem->getType();
 				}
 
-				/** mshop/index/manager/text/standard/insert/mysql
-				 * Inserts a new text record into the product index database
-				 *
-				 * @see mshop/index/manager/text/standard/insert/ansi
-				 */
-
-				/** mshop/index/manager/text/standard/insert/ansi
-				 * Inserts a new text record into the product index database
-				 *
-				 * During the product index rebuild, texts related to a product
-				 * will be stored in the index for this product. All records
-				 * are deleted before the new ones are inserted.
-				 *
-				 * The SQL statement must be a string suitable for being used as
-				 * prepared statement. It must include question marks for binding
-				 * the values from the order item to the statement before they are
-				 * sent to the database server. The number of question marks must
-				 * be the same as the number of columns listed in the INSERT
-				 * statement. The order of the columns must correspond to the
-				 * order in the rebuildIndex() method, so the correct values are
-				 * bound to the columns.
-				 *
-				 * The SQL statement should conform to the ANSI standard to be
-				 * compatible with most relational database systems. This also
-				 * includes using double quotes for table and column names.
-				 *
-				 * @param string SQL statement for inserting records
-				 * @since 2014.03
-				 * @category Developer
-				 * @see mshop/index/manager/text/standard/cleanup/ansi
-				 * @see mshop/index/manager/text/standard/count/ansi
-				 * @see mshop/index/manager/text/standard/delete/ansi
-				 * @see mshop/index/manager/text/standard/insert/ansi
-				 * @see mshop/index/manager/text/standard/search/ansi
-				 * @see mshop/index/manager/text/standard/text/ansi
-				 */
-				$stmt = $this->getCachedStatement( $conn, 'mshop/index/manager/text/standard/insert' );
-
-				foreach( $item->getRefItems( 'text' ) as $refId => $refItem )
-				{
-					if( !isset( $listTypes[$refId] ) ) {
-						$msg = sprintf( 'List type for text item with ID "%1$s" not available', $refId );
-						throw new \Aimeos\MShop\Index\Exception( $msg );
-					}
-
-					foreach( $listTypes[$refId] as $listType )
-					{
-						$this->saveText(
-							$stmt, $parentId, $siteid, $refId, $refItem->getLanguageId(), $listType,
-							$refItem->getType(), 'product', $refItem->getContent(), $date, $editor
-						);
-					}
-				}
-
-				$nameList = array();
-				foreach( $item->getRefItems( 'text', 'name' ) as $refItem ) {
-					$nameList[$refItem->getLanguageId()] = $refItem;
-				}
-
-				foreach( $langIds as $langId )
-				{
-					if( !isset( $nameList[$langId] ) )
-					{
-						$this->saveText(
-							$stmt, $parentId, $siteid, null, $langId, 'default',
-							'name', 'product', $item->getLabel(), $date, $editor
-						);
-					}
-				}
+				$this->saveTexts( $stmt, $item, $listTypes, array( $parentId => array( $parentId ) ) );
+				$this->saveLabels( $stmt, $item, array( $parentId ) );
 			}
 
 			$dbm->release( $conn, $dbname );
@@ -773,25 +736,9 @@ class Standard
 		if( empty( $prodIds ) ) { return; }
 
 
-		$attrManager = \Aimeos\MShop\Factory::createManager( $this->getContext(), 'attribute' );
-		$search = $attrManager->createSearch( true );
-		$expr = array(
-			$search->compare( '==', 'attribute.id', array_keys( $prodIds ) ),
-			$search->getConditions()
-		);
-		$search->setConditions( $search->combine( '&&', $expr ) );
-		$search->setSlice( 0, 0x7fffffff );
-
-		$attributeItems = $attrManager->searchItems( $search, array( 'text' ) );
-
+		$attributeItems = $this->getAttributeItems( array_keys( $prodIds ) );
 
 		$context = $this->getContext();
-		$locale = $context->getLocale();
-		$siteid = $context->getLocale()->getSiteId();
-		$editor = $context->getEditor();
-		$date = date( 'Y-m-d H:i:s' );
-
-
 		$dbm = $context->getDatabaseManager();
 		$dbname = $this->getResourceName();
 		$conn = $dbm->acquire( $dbname );
@@ -844,34 +791,8 @@ class Standard
 					$listTypes[$listItem->getRefId()][] = $listItem->getType();
 				}
 
-				foreach( $item->getRefItems( 'text' ) as $refId => $refItem )
-				{
-					if( !isset( $listTypes[$refId] ) ) {
-						$msg = sprintf( 'List type for text item with ID "%1$s" not available', $refId );
-						throw new \Aimeos\MShop\Index\Exception( $msg );
-					}
-
-					foreach( $listTypes[$refId] as $listType )
-					{
-						foreach( $prodIds[$id] as $productId )
-						{
-							$this->saveText(
-								$stmt, $productId, $siteid, $refId, $refItem->getLanguageId(), $listType,
-								$refItem->getType(), 'attribute', $refItem->getContent(), $date, $editor
-							);
-						}
-					}
-				}
-
-				$names = $item->getRefItems( 'text', 'name' );
-
-				if( empty( $names ) )
-				{
-					$this->saveText(
-						$stmt, $prodIds[$id], $siteid, null, $locale->getLanguageId(), 'default',
-						'name', 'attribute', $item->getLabel(), $date, $editor
-					);
-				}
+				$this->saveTexts( $stmt, $item, $listTypes, $prodIds );
+				$this->saveLabels( $stmt, $item, $prodIds[$id] );
 			}
 
 			$dbm->release( $conn, $dbname );
@@ -880,6 +801,71 @@ class Standard
 		{
 			$dbm->release( $conn, $dbname );
 			throw $e;
+		}
+	}
+
+
+	/**
+	 * Saves the labelfor items where no name is associated
+	 *
+	 * @param \Aimeos\MW\DB\Statement\Iface $stmt Prepared SQL statement with place holders
+	 * @param \Aimeos\MShop\Common\Item\ListRef\Iface $item Item containing associated text items
+	 * @param array $prodIds Product ID to save the label for
+	 */
+	protected function saveLabels( \Aimeos\MW\DB\Statement\Iface $stmt, \Aimeos\MShop\Common\Item\ListRef\Iface $item, array $prodIds )
+	{
+		$context = $this->getContext();
+		$siteid = $context->getLocale()->getSiteId();
+		$editor = $context->getEditor();
+		$date = date( 'Y-m-d H:i:s' );
+
+		if( $item->getRefItems( 'text', 'name' ) === array() )
+		{
+			foreach( $prodIds as $prodId )
+			{
+				$this->saveText(
+					$stmt, $prodId, $siteid, null, null, 'default', 'name',
+					$item->getResourceType(), $item->getLabel(), $date, $editor
+				);
+			}
+		}
+	}
+
+
+	/**
+	 * Saves the text items referenced indirectly by products
+	 *
+	 * @param \Aimeos\MW\DB\Statement\Iface $stmt Prepared SQL statement with place holders
+	 * @param \Aimeos\MShop\Common\Item\ListRef\Iface $item Item containing associated text items
+	 * @param array $listTypes Associative list of item ID / list type code pairs
+	 * @param array $prodIds Associative list of item ID / list of product IDs pairs
+	 * @throws \Aimeos\MShop\Index\Exception If no list type for the item is available
+	 */
+	protected function saveTexts( \Aimeos\MW\DB\Statement\Iface $stmt, \Aimeos\MShop\Common\Item\ListRef\Iface $item,
+		array $listTypes, array $prodIds )
+	{
+		$context = $this->getContext();
+		$siteid = $context->getLocale()->getSiteId();
+		$editor = $context->getEditor();
+		$date = date( 'Y-m-d H:i:s' );
+
+		foreach( $item->getRefItems( 'text' ) as $refId => $refItem )
+		{
+			if( !isset( $listTypes[$refId] ) ) {
+				$msg = sprintf( 'List type for text item with ID "%1$s" not available', $refId );
+				throw new \Aimeos\MShop\Index\Exception( $msg );
+			}
+
+			foreach( $listTypes[$refId] as $listType )
+			{
+				foreach( $prodIds[$item->getId()] as $productId )
+				{
+					$this->saveText(
+						$stmt, $productId, $siteid, $refId, $refItem->getLanguageId(), $listType,
+						$refItem->getType(), $item->getResourceType(), $refItem->getContent(), $date, $editor
+					);
+				}
+			}
 		}
 	}
 
@@ -916,7 +902,29 @@ class Standard
 
 		try {
 			$stmt->execute()->finish();
-		} catch( \Aimeos\MW\DB\Exception $e ) {; } // Ignore duplicates
+		} catch( \Aimeos\MW\DB\Exception $e ) { echo $e->getMessage() . PHP_EOL; } // Ignore duplicates
+	}
+
+
+	/**
+	 * Returns the attribute items for the given IDs
+	 *
+	 * @param array $ids Unique attribute IDs
+	 * @return array Associative list of IDs as keys and items implementing \Aimeos\MShop\Attribute\Item\Iface as values
+	 */
+	protected function getAttributeItems( array $ids )
+	{
+		$attrManager = \Aimeos\MShop\Factory::createManager( $this->getContext(), 'attribute' );
+
+		$search = $attrManager->createSearch( true );
+		$expr = array(
+			$search->compare( '==', 'attribute.id', $ids ),
+			$search->getConditions()
+		);
+		$search->setConditions( $search->combine( '&&', $expr ) );
+		$search->setSlice( 0, 0x7fffffff );
+
+		return $attrManager->searchItems( $search, array( 'text' ) );
 	}
 
 
@@ -959,32 +967,5 @@ class Standard
 		}
 
 		return $this->subManagers;
-	}
-
-
-	/**
-	 * Returns the configured langauge IDs for the given sites
-	 *
-	 * @param array $siteIds List of site IDs
-	 * @return array List of language IDs
-	 */
-	protected function getLanguageIds( array $siteIds )
-	{
-		if( !isset( $this->langIds ) )
-		{
-			$list = array();
-			$manager = \Aimeos\MShop\Factory::createManager( $this->getContext(), 'locale' );
-
-			$search = $manager->createSearch( true );
-			$search->setConditions( $search->compare( '==', 'locale.siteid', $siteIds ) );
-
-			foreach( $manager->searchItems( $search ) as $item ) {
-				$list[$item->getLanguageId()] = null;
-			}
-
-			$this->langIds = array_keys( $list );
-		}
-
-		return $this->langIds;
 	}
 }

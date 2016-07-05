@@ -42,7 +42,7 @@ return array(
 			WHERE :cond
 			GROUP BY malog."id", malog."siteid", malog."facility",
 				malog."timestamp", malog."priority", malog."message",
-				malog."request" /*-orderby*/, :order /*orderby-*/
+				malog."request" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 	',
@@ -60,6 +60,12 @@ return array(
 		',
 	),
 	'newid' => array(
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
 		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT madmin_log_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );

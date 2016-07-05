@@ -22,6 +22,16 @@ return array(
 			) VALUES (
 				?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 			)
+		',
+		'pgsql' => '
+			INSERT INTO "mshop_index_price" (
+				"prodid", "siteid", "priceid", "currencyid", "listtype",
+				"type", "value", "costs", "rebate", "taxrate", "quantity",
+				"mtime", "editor", "ctime"
+			) VALUES (
+				?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+			)
+			ON CONFLICT DO NOTHING
 		'
 	),
 	'search' => array(
@@ -30,7 +40,7 @@ return array(
 			FROM "mshop_product" AS mpro
 			:joins
 			WHERE :cond
-			GROUP BY mpro."id" /*-orderby*/, :order /*orderby-*/
+			GROUP BY mpro."id" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -49,16 +59,14 @@ return array(
 	),
 	'cleanup' => array(
 		'ansi' => '
-		DELETE FROM "mshop_index_price"
-		WHERE "ctime" < ? AND "siteid" = ?
-	'
-	),
-	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+			DELETE FROM "mshop_index_price"
+			WHERE "ctime" < ? AND "siteid" = ?
+		'
 	),
 	'optimize' => array(
 		'mysql' => array(
 			'OPTIMIZE TABLE "mshop_index_price"',
 		),
+		'pgsql' => array(),
 	),
 );

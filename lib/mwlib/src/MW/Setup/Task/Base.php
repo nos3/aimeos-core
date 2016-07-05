@@ -80,10 +80,11 @@ abstract class Base implements \Aimeos\MW\Setup\Task\Iface
 	 * Executes the task for the given database type.
 	 *
 	 * @param string $dbtype Database type string
+	 * @deprecated Use migrate() instead
 	 */
 	public function run( $dbtype )
 	{
-		if( method_exists( $this, 'mysql' ) ) {
+		if( $dbtype === 'mysql' && method_exists( $this, 'mysql' ) ) {
 			$this->mysql();
 		}
 	}
@@ -177,6 +178,7 @@ abstract class Base implements \Aimeos\MW\Setup\Task\Iface
 	 * @param string $sql SQL statement to execute
 	 * @param string $column Column name to retrieve
 	 * @param string $name Name from the resource configuration
+	 * @return string Column value
 	 */
 	protected function getValue( $sql, $column, $name = 'db' )
 	{
@@ -232,8 +234,8 @@ abstract class Base implements \Aimeos\MW\Setup\Task\Iface
 	 */
 	protected function getTableDefinitions( $content )
 	{
-		$defs = array( );
-		$matches = array( );
+		$defs = array();
+		$matches = array();
 
 		$regex = '/CREATE TABLE \"?([a-zA-Z0-9_]+)\"? .*(\n\n|$)/sU';
 		if ( preg_match_all($regex, $content, $matches, PREG_SET_ORDER) === false ) {
@@ -256,8 +258,8 @@ abstract class Base implements \Aimeos\MW\Setup\Task\Iface
 	 */
 	protected function getIndexDefinitions( $content )
 	{
-		$defs = array( );
-		$matches = array( );
+		$defs = array();
+		$matches = array();
 
 		if ( preg_match_all('/CREATE [a-zA-Z]* ?INDEX \"?([a-zA-Z0-9_]+)\"? ON \"?([a-zA-Z0-9_]+)\"? .+(\n\n|$)/sU', $content, $matches, PREG_SET_ORDER) === false ) {
 			throw new \Aimeos\MW\Setup\Exception('Unable to get index definitions');
@@ -280,8 +282,8 @@ abstract class Base implements \Aimeos\MW\Setup\Task\Iface
 	 */
 	protected function getTriggerDefinitions( $content )
 	{
-		$defs = array( );
-		$matches = array( );
+		$defs = array();
+		$matches = array();
 
 		$regex = '/CREATE TRIGGER \"?([a-zA-Z0-9_]+)\"? .*(\n\n|$)/sU';
 		if ( preg_match_all($regex, $content, $matches, PREG_SET_ORDER) === false ) {

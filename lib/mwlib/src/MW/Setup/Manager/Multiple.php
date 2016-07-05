@@ -21,11 +21,13 @@ namespace Aimeos\MW\Setup\Manager;
 class Multiple extends \Aimeos\MW\Setup\Manager\Base
 {
 	private $dbm;
+	private $type;
 	private $additional;
 	private $tasks = array();
 	private $tasksDone = array();
 	private $dependencies = array();
 	private $reverse = array();
+	private $conns = array();
 
 
 	/**
@@ -45,9 +47,9 @@ class Multiple extends \Aimeos\MW\Setup\Manager\Base
 
 		$this->dbm = $dbm;
 		$this->additional = $additional;
-
-		$conns = array();
 		$schemas = array();
+
+		$this->type = ( isset( $dbconfig['db']['adapter'] ) ? $dbconfig['db']['adapter'] : '' );
 
 		foreach( $dbconfig as $rname => $dbconf )
 		{
@@ -59,23 +61,36 @@ class Multiple extends \Aimeos\MW\Setup\Manager\Base
 				throw new \Aimeos\MW\Setup\Exception( sprintf( 'Configuration parameter "%1$s" missing in "%2$s"', 'database', $rname ) );
 			}
 
-			$conns[$rname] = $dbm->acquire( $rname );
-			$schemas[$rname] = $this->createSchema( $conns[$rname], $dbconf['adapter'], $dbconf['database'] );
+			$this->conns[$rname] = $dbm->acquire( $rname );
+			$schemas[$rname] = $this->createSchema( $this->conns[$rname], $dbconf['adapter'], $dbconf['database'] );
 		}
 
 		if( !is_array( $taskpath ) ) { $taskpath = (array) $taskpath; }
-		$this->setupTasks( $taskpath, $conns, $schemas );
+		$this->setupTasks( $taskpath, $this->conns, $schemas );
+	}
+
+
+	/**
+	 * Cleans up the object
+	 */
+	public function __destruct()
+	{
+		foreach( $this->conns as $name => $conn ) {
+			$this->dbm->release( $conn, $name );
+		}
+
+		unset( $this->dbm );
 	}
 
 
 	/**
 	 * Cleans up old data required for roll back
 	 *
-	 * @param string $task Name of the task
+	 * @param string|null $task Name of the task
 	 */
 	public function clean( $task = null )
 	{
-		$tasks = ( $task && isset( $this->tasks[$task] ) ? array( $task => $this->tasks[$task] ) : $this->tasks );
+		$tasks = ( $task !== null && isset( $this->tasks[$task] ) ? array( $task => $this->tasks[$task] ) : $this->tasks );
 
 		foreach( $tasks as $taskname => $task ) {
 			$this->cleanTasks( array( $taskname ) );
@@ -86,11 +101,11 @@ class Multiple extends \Aimeos\MW\Setup\Manager\Base
 	/**
 	 * Updates the schema and migrates the data
 	 *
-	 * @param string $task Name of the task
+	 * @param string|null $task Name of the task
 	 */
 	public function migrate( $task = null )
 	{
-		$tasks = ( $task && isset( $this->tasks[$task] ) ? array( $task => $this->tasks[$task] ) : $this->tasks );
+		$tasks = ( $task !== null && isset( $this->tasks[$task] ) ? array( $task => $this->tasks[$task] ) : $this->tasks );
 
 		foreach( $tasks as $taskname => $task ) {
 			$this->migrateTasks( array( $taskname ) );
@@ -101,11 +116,11 @@ class Multiple extends \Aimeos\MW\Setup\Manager\Base
 	/**
 	 * Undo all schema changes and migrate data back
 	 *
-	 * @param string $task Name of the task
+	 * @param string|null $task Name of the task
 	 */
 	public function rollback( $task = null )
 	{
-		$tasks = ( $task && isset( $this->tasks[$task] ) ? array( $task => $this->tasks[$task] ) : $this->tasks );
+		$tasks = ( $task !== null && isset( $this->tasks[$task] ) ? array( $task => $this->tasks[$task] ) : $this->tasks );
 
 		foreach( array_reverse( $tasks, true ) as $taskname => $task ) {
 			$this->rollbackTasks( array( $taskname ) );
@@ -184,7 +199,7 @@ class Multiple extends \Aimeos\MW\Setup\Manager\Base
 
 			if( isset( $this->tasks[$taskname] ) )
 			{
-				$this->tasks[$taskname]->run( 'mysql' );
+				$this->tasks[$taskname]->run( $this->type );
 				$this->tasks[$taskname]->migrate();
 			}
 

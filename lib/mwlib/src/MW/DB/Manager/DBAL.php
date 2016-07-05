@@ -36,6 +36,17 @@ class DBAL implements \Aimeos\MW\DB\Manager\Iface
 
 
 	/**
+	 * Cleans up the object
+	 */
+	public function __destruct()
+	{
+		foreach( $this->connections as $conn ) {
+			unset( $conn );
+		}
+	}
+
+
+	/**
 	 * Clones the objects inside.
 	 */
 	public function __clone()
@@ -64,8 +75,10 @@ class DBAL implements \Aimeos\MW\DB\Manager\Iface
 
 				$limit = $this->config->get( 'resource/' . $name . '/limit', -1 );
 
-				if( $limit >= 0 && $this->count[$name] >= $limit ) {
-					throw new \Aimeos\MW\DB\Exception( sprintf( 'Maximum number of connections (%1$d) exceeded', $limit ) );
+				if( $limit >= 0 && $this->count[$name] >= $limit )
+				{
+					$msg = sprintf( 'Maximum number of connections (%1$d) for "%2$s" exceeded', $limit, $name );
+					throw new \Aimeos\MW\DB\Exception( $msg );
 				}
 
 				$this->connections[$name] = array( $this->createConnection( $name, $adapter ) );
@@ -106,15 +119,19 @@ class DBAL implements \Aimeos\MW\DB\Manager\Iface
 	 */
 	protected function createConnection( $name, $adapter )
 	{
-		$params = $host = $this->config->get( 'resource/' . $name );
+		$params = $this->config->get( 'resource/' . $name );
 
 		$params['user'] = $this->config->get( 'resource/' . $name . '/username' );
 		$params['dbname'] = $this->config->get( 'resource/' . $name . '/database' );
-		$params['unix_socket'] = $this->config->get( 'resource/' . $name . '/socket' );
+
+		if( ( $socket = $this->config->get( 'resource/' . $name . '/socket' ) ) != null ) {
+			$params['unix_socket'] = $socket;
+		}
 
 		switch( $adapter )
 		{
 			case 'mysql': $params['driver'] = 'pdo_mysql'; break;
+			case 'oracle': $params['driver'] = 'oci8'; break;
 			case 'pgsql': $params['driver'] = 'pdo_pgsql'; break;
 			case 'sqlite': $params['driver'] = 'pdo_sqlite'; break;
 			default: $params['driver'] = $adapter;

@@ -92,6 +92,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$search = $manager->createSearch();
 		$expr = array(
 			$search->compare( '==', 'attribute.code', 'white' ),
+			$search->compare( '==', 'attribute.domain', 'product' ),
 			$search->compare( '==', 'attribute.type.code', 'color' ),
 		);
 		$search->setConditions( $search->combine( '&&', $expr ) );
@@ -184,7 +185,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals( 7, $cntAttributeA );
 		$this->assertEquals( 5, $cntCatalogA );
 		$this->assertEquals( 2, $cntPriceA );
-		$this->assertEquals( 10, $cntTextA );
+		$this->assertEquals( 9, $cntTextA );
 
 		$this->assertEquals( 0, $cntAttributeB );
 		$this->assertEquals( 0, $cntCatalogB );
@@ -609,7 +610,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
 		$search = $textMgr->createSearch();
 		$expr = array(
-			$search->compare( '>', $search->createFunction( 'index.text.relevance', array( 'unittype19', $langid, 'cafe noire cap' ) ), 0 ),
+			$search->compare( '>', $search->createFunction( 'index.text.relevance', array( 'unittype19', $langid, 'Cafe Noire Cap' ) ), 0 ),
 			$search->compare( '>', $search->createFunction( 'index.text.value', array( 'unittype19', $langid, 'name', 'product' ) ), '' ),
 		);
 		$search->setConditions( $search->combine( '&&', $expr ) );
@@ -629,7 +630,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
 	public function testCleanupIndex()
 	{
-		$this->object->cleanupIndex( '0000-00-00 00:00:00' );
+		$this->object->cleanupIndex( '1970-01-01 00:00:00' );
 	}
 
 

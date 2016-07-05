@@ -14,7 +14,7 @@ return array(
 			FROM "mshop_order_base_coupon" AS mordbaco
 			:joins
 			WHERE :cond
-			GROUP BY :key, mordbaco."id" /*-orderby*/, :order /*orderby-*/
+			GROUP BY :key, mordbaco."id" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		) AS list
@@ -56,7 +56,7 @@ return array(
 			WHERE :cond
 			GROUP BY mordbaco."id", mordbaco."baseid", mordbaco."siteid", mordbaco."ordprodid",
 				mordbaco."code", mordbaco."mtime", mordbaco."editor", mordbaco."ctime"
-				/*-orderby*/, :order /*orderby-*/
+				/*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -70,7 +70,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_order_base_coupon_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

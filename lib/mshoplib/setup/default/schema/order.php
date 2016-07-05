@@ -7,6 +7,7 @@
 
 
 return array(
+<<<<<<< HEAD
 	'sequence' => array(
 		'seq_msord_id' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 
@@ -54,6 +55,8 @@ return array(
 			return $schema;
 		},
 	),
+=======
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	'table' => array(
 
 		'mshop_order_base' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
@@ -65,7 +68,11 @@ return array(
 			$table->addColumn( 'customerid', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'sitecode', 'string', array( 'length' => 32, 'notnull' => false ) );
 			$table->addColumn( 'langid', 'string', array( 'length' => 5 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'currencyid', 'string', array( 'length' => 3 ) );
+=======
+			$table->addColumn( 'currencyid', 'string', array( 'length' => 3, 'fixed' => true ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'price', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
 			$table->addColumn( 'costs', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
 			$table->addColumn( 'rebate', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
@@ -98,8 +105,17 @@ return array(
 			$table->addColumn( 'statuspayment', 'smallint', array( 'default' => -1 ) );
 			$table->addColumn( 'statusdelivery', 'smallint', array( 'default' => -1 ) );
 			$table->addColumn( 'relatedid', 'bigint', array( 'notnull' => false ) );
+<<<<<<< HEAD
 			$table->addColumn( 'mtime', 'datetime', array() );
 			$table->addColumn( 'ctime', 'datetime', array() );
+=======
+			$table->addColumn( 'cdate', 'string', array( 'fixed' => 10 ) );
+			$table->addColumn( 'cweek', 'string', array( 'fixed' => 7 ) );
+			$table->addColumn( 'cmonth', 'string', array( 'fixed' => 7 ) );
+			$table->addColumn( 'chour', 'string', array( 'fixed' => 2 ) );
+			$table->addColumn( 'ctime', 'datetime', array() );
+			$table->addColumn( 'mtime', 'datetime', array() );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'editor', 'string', array('length' => 255 ) );
 
 			$table->setPrimaryKey( array( 'id' ), 'pk_msord_id' );
@@ -111,6 +127,12 @@ return array(
 			$table->addIndex( array( 'siteid', 'datepayment' ), 'idx_msord_sid_pdate' );
 			$table->addIndex( array( 'siteid', 'editor' ), 'idx_msord_sid_editor' );
 			$table->addIndex( array( 'siteid', 'ctime' ), 'idx_msord_sid_ctime' );
+<<<<<<< HEAD
+=======
+			$table->addIndex( array( 'siteid', 'cdate' ), 'idx_msord_sid_cdate' );
+			$table->addIndex( array( 'siteid', 'cmonth' ), 'idx_msord_sid_cmonth' );
+			$table->addIndex( array( 'siteid', 'chour' ), 'idx_msord_sid_chour' );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 
 			$table->addForeignKeyConstraint( 'mshop_order_base', array( 'baseid' ), array( 'id' ),
 				array( 'onUpdate' => 'CASCADE', 'onDelete' => 'CASCADE' ), 'fk_msord_baseid' );
@@ -140,7 +162,11 @@ return array(
 			$table->addColumn( 'city', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'state', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'langid', 'string', array( 'length' => 5, 'notnull' => false ) );
+<<<<<<< HEAD
 			$table->addColumn( 'countryid', 'string', array( 'length' => 2, 'notnull' => false ) );
+=======
+			$table->addColumn( 'countryid', 'string', array( 'length' => 2, 'notnull' => false, 'fixed' => true ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'telephone', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'email', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'telefax', 'string', array( 'length' => 255 ) );
@@ -175,9 +201,15 @@ return array(
 			$table->addColumn( 'ordprodid', 'bigint', array( 'notnull' => false ) );
 			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'prodid', 'string', array( 'length' => 32 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'prodcode', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' )  ) );
 			$table->addColumn( 'suppliercode', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' )  ) );
 			$table->addColumn( 'warehousecode', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'prodcode', 'string', array( 'length' => 32  ) );
+			$table->addColumn( 'suppliercode', 'string', array( 'length' => 32  ) );
+			$table->addColumn( 'warehousecode', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'name', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'mediaurl', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'quantity', 'integer', array() );
@@ -210,12 +242,20 @@ return array(
 			$table = $schema->createTable( 'mshop_order_base_product_attr' );
 
 			$table->addColumn( 'id', 'bigint', array( 'autoincrement' => true ) );
+<<<<<<< HEAD
 			$table->addColumn( 'baseid', 'bigint', array() );
 			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'attrid', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'ordprodid', 'bigint', array() );
 			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'ordprodid', 'bigint', array() );
+			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
+			$table->addColumn( 'attrid', 'string', array( 'length' => 32 ) );
+			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'name', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'value', 'text', array( 'length' => 0xffff ) );
 			$table->addColumn( 'mtime', 'datetime', array() );
@@ -240,7 +280,11 @@ return array(
 			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'servid', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'type', 'string', array( 'length' => 8 ) );
+<<<<<<< HEAD
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'name', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'mediaurl', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'price', 'decimal', array( 'precision' => 12, 'scale' => 2 ) );
@@ -269,12 +313,20 @@ return array(
 			$table = $schema->createTable( 'mshop_order_base_service_attr' );
 
 			$table->addColumn( 'id', 'bigint', array( 'autoincrement' => true ) );
+<<<<<<< HEAD
 			$table->addColumn( 'baseid', 'bigint', array() );
 			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'attrid', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'ordservid', 'bigint', array() );
 			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'ordservid', 'bigint', array() );
+			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
+			$table->addColumn( 'attrid', 'string', array( 'length' => 32 ) );
+			$table->addColumn( 'type', 'string', array( 'length' => 32 ) );
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'name', 'string', array( 'length' => 255 ) );
 			$table->addColumn( 'value', 'text', array( 'length' => 0xffff ) );
 			$table->addColumn( 'mtime', 'datetime', array() );
@@ -298,7 +350,11 @@ return array(
 			$table->addColumn( 'baseid', 'bigint', array() );
 			$table->addColumn( 'siteid', 'integer', array( 'notnull' => false ) );
 			$table->addColumn( 'ordprodid', 'bigint', array( 'notnull' => false ) );
+<<<<<<< HEAD
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'mtime', 'datetime', array() );
 			$table->addColumn( 'ctime', 'datetime', array() );
 			$table->addColumn( 'editor', 'string', array('length' => 255 ) );

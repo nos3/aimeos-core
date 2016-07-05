@@ -194,12 +194,20 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 	}
 
 
+	public function testSaveInvalid()
+	{
+		$this->setExpectedException( '\Aimeos\MShop\Order\Exception' );
+		$this->object->saveItem( new \Aimeos\MShop\Locale\Item\Standard() );
+	}
+
+
 	public function testSaveUpdateDeleteItem()
 	{
 		$search = $this->object->createSearch();
 		$conditions = array(
 			$search->compare( '==', 'order.base.service.code', 'OGONE' ),
 			$search->compare( '==', 'order.base.service.editor', $this->editor ),
+			$search->compare( '==', 'order.base.service.attribute.code', 'NAME' ),
 		);
 		$search->setConditions( $search->combine( '&&', $conditions ) );
 		$orderItems = $this->object->searchItems( $search );

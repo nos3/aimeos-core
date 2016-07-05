@@ -43,7 +43,7 @@ return array(
 			WHERE :cond
 			GROUP BY mlocsi."id", mlocsi."parentid", mlocsi."code", mlocsi."label",
 				mlocsi."config", mlocsi."status", mlocsi."editor", mlocsi."mtime",
-				mlocsi."ctime", :order
+				mlocsi."ctime" :columns
 			ORDER BY :order
 			LIMIT :size OFFSET :start
 		'
@@ -60,7 +60,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_locale_site_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

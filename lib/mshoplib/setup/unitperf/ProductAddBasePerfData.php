@@ -15,7 +15,7 @@ namespace Aimeos\MW\Setup\Task;
  */
 class ProductAddBasePerfData extends \Aimeos\MW\Setup\Task\Base
 {
-	private $count = 9000;
+	private $count = 90;
 
 
 	/**
@@ -23,7 +23,7 @@ class ProductAddBasePerfData extends \Aimeos\MW\Setup\Task\Base
 	 *
 	 * @param \Aimeos\MW\Setup\DBSchema\Iface $schema
 	 * @param \Aimeos\MW\DB\Connection\Iface $conn
-	 * @param string $additional
+	 * @param \Aimeos\MShop\Context\Item\Iface|null $additional
 	 * @throws \Aimeos\MW\Setup\Exception
 	 */
 	public function __construct( \Aimeos\MW\Setup\DBSchema\Iface $schema, \Aimeos\MW\DB\Connection\Iface $conn, $additional = null )
@@ -60,18 +60,9 @@ class ProductAddBasePerfData extends \Aimeos\MW\Setup\Task\Base
 
 
 	/**
-	 * Executes the task for MySQL databases.
-	 */
-	protected function mysql()
-	{
-		$this->process();
-	}
-
-
-	/**
 	 * Insert product data.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$this->msg( 'Adding product base performance data', 0 );
 

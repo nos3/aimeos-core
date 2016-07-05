@@ -83,6 +83,13 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 	}
 
 
+	public function testSaveInvalid()
+	{
+		$this->setExpectedException( '\Aimeos\MShop\Exception' );
+		$this->object->saveItem( new \Aimeos\MShop\Locale\Item\Standard() );
+	}
+
+
 	public function testSaveUpdateDeleteItem()
 	{
 		$search = $this->object->createSearch();
@@ -197,7 +204,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$conditions[] = $search->compare( '==', 'supplier.address.postal', '20457' );
 		$conditions[] = $search->compare( '==', 'supplier.address.city', 'Hamburg' );
 		$conditions[] = $search->compare( '==', 'supplier.address.state', 'Hamburg' );
-		$conditions[] = $search->compare( '==', 'supplier.address.countryid', 'de' );
+		$conditions[] = $search->compare( '==', 'supplier.address.countryid', 'DE' );
 		$conditions[] = $search->compare( '==', 'supplier.address.telephone', '055544332211' );
 		$conditions[] = $search->compare( '==', 'supplier.address.email', 'test@example.com' );
 		$conditions[] = $search->compare( '==', 'supplier.address.telefax', '055544332212' );

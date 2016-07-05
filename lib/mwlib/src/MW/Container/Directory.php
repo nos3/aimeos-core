@@ -86,7 +86,7 @@ class Directory
 	 * @param string $name Name of the content object that should be returned
 	 * @return \Aimeos\MW\Container\Content\Iface Content object
 	 */
-	function get( $name )
+	public function get( $name )
 	{
 		return new $this->classname( $this->resource->getPath() . DIRECTORY_SEPARATOR . $name, $name );
 	}
@@ -117,7 +117,7 @@ class Directory
 	/**
 	 * Returns the key of the current element.
 	 *
-	 * @return integer Position within the directory
+	 * @return string Position within the directory
 	 */
 	public function key()
 	{

@@ -85,7 +85,7 @@ return array(
 			GROUP BY mcusli."id", mcusli."parentid", mcusli."siteid", mcusli."typeid",
 				mcusli."domain", mcusli."refid", mcusli."start", mcusli."end",
 				mcusli."config", mcusli."pos", mcusli."status", mcusli."mtime",
-				mcusli."editor", mcusli."ctime" /*-orderby*/, :order /*orderby-*/
+				mcusli."editor", mcusli."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -103,7 +103,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_customer_list_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

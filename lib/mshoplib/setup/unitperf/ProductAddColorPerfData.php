@@ -40,7 +40,7 @@ class ProductAddColorPerfData extends \Aimeos\MW\Setup\Task\ProductAddBasePerfDa
 	/**
 	 * Insert text data and product/text relations.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$this->msg( 'Adding product color attribute performance data', 0 );
 
@@ -220,6 +220,26 @@ class ProductAddColorPerfData extends \Aimeos\MW\Setup\Task\ProductAddBasePerfDa
 			throw new \Exception( 'Unable to allocate color' );
 		}
 
+		$image = $this->getImage( $img, $mime );
+
+		if( imagedestroy( $img ) === false ) {
+			throw new \Exception( 'Unable to destroy image' );
+		}
+
+		return 'data:' . $mime . ';base64,' . base64_encode( $image );
+	}
+
+
+	/**
+	 * Returns the GIF or PNG image for the given resource
+	 *
+	 * @param resource $img GD image resource
+	 * @param string &$mime Contains the mime type of the created image as result
+	 * @return string Binary image data
+	 * @throws \Exception If PHP GD isn't installed
+	 */
+	protected function getImage( $img, &$mime )
+	{
 		try
 		{
 			ob_start();
@@ -241,10 +261,6 @@ class ProductAddColorPerfData extends \Aimeos\MW\Setup\Task\ProductAddBasePerfDa
 			throw $e;
 		}
 
-		if( imagedestroy( $img ) === false ) {
-			throw new \Exception( 'Unable to destroy image' );
-		}
-
-		return 'data:' . $mime . ';base64,' . base64_encode( $image );
+		return $image;
 	}
 }

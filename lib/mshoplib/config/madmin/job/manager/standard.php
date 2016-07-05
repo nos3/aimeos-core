@@ -44,7 +44,7 @@ return array(
 			WHERE :cond
 			GROUP BY majob."id", majob."siteid", majob."label",
 				majob."method", majob."parameter", majob."result", majob."status",
-				majob."editor", majob."mtime", majob."ctime" /*-orderby*/, :order /*orderby-*/
+				majob."editor", majob."mtime", majob."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		',
@@ -62,6 +62,12 @@ return array(
 		',
 	),
 	'newid' => array(
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
 		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT madmin_job_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );

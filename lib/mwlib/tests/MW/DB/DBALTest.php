@@ -11,23 +11,23 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
+		$schema = new \Doctrine\DBAL\Schema\Schema();
+
+		$table = $schema->createTable( 'mw_unit_test' );
+		$table->addColumn( 'id', 'integer', array( 'autoincrement' => true ) );
+		$table->addColumn( 'name', 'string', array( 'length' => 20 ) );
+		$table->setPrimaryKey( array( 'id' ) );
+
+
 		$this->config = \TestHelperMw::getConfig();
-
-		if( ( $adapter = $this->config->get( 'resource/db/adapter', false ) ) === false ) {
-			$this->markTestSkipped( 'No database configured' );
-		}
-
-
 		$this->object = new \Aimeos\MW\DB\Manager\DBAL( $this->config );
 
-		if( $adapter == 'mysql' ) {
-			$sql = 'CREATE TABLE "mw_unit_test" ( "id" INT NOT NULL PRIMARY KEY AUTO_INCREMENT, "name" VARCHAR(20) NOT NULL ) ENGINE=InnoDB';
-		} else {
-			$sql = 'CREATE TABLE "mw_unit_test" ( "id" INT NOT NULL PRIMARY KEY AUTO_INCREMENT, "name" VARCHAR(20) NOT NULL )';
+		$conn = $this->object->acquire();
+
+		foreach( $schema->toSQL( $conn->getRawObject()->getDatabasePlatform() ) as $sql ) {
+			$conn->create( $sql )->execute()->finish();
 		}
 
-		$conn = $this->object->acquire();
-		$conn->create( $sql )->execute()->finish();
 		$this->object->release( $conn );
 	}
 
@@ -35,10 +35,9 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 	protected function tearDown()
 	{
 		$this->object = new \Aimeos\MW\DB\Manager\DBAL( $this->config );
-		$sql = 'DROP TABLE "mw_unit_test"';
 
 		$conn = $this->object->acquire();
-		$conn->create( $sql )->execute()->finish();
+		$conn->create( 'DROP TABLE "mw_unit_test"' )->execute()->finish();
 		$this->object->release( $conn );
 
 		unset( $this->object );
@@ -47,8 +46,8 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	public function testTransactionCommit()
 	{
-		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (1)';
-		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = 1';
+		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (\'1\')';
+		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = \'1\'';
 
 		$conn = $this->object->acquire();
 
@@ -75,8 +74,8 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	public function testTransactionCommitMultiple()
 	{
-		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (1)';
-		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = 1';
+		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (\'1\')';
+		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = \'1\'';
 
 		$conn = $this->object->acquire();
 
@@ -107,8 +106,8 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	public function testTransactionRollback()
 	{
-		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (1)';
-		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = 1';
+		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (\'1\')';
+		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = \'1\'';
 
 		$conn = $this->object->acquire();
 
@@ -135,8 +134,8 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	public function testTransactionStackCommit()
 	{
-		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (1)';
-		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = 1';
+		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (\'1\')';
+		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = \'1\'';
 
 		$conn = $this->object->acquire();
 
@@ -166,8 +165,8 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	public function testTransactionStackRollback()
 	{
-		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (1)';
-		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = 1';
+		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (\'1\')';
+		$sqlselect = 'SELECT "name" FROM "mw_unit_test" WHERE "name" = \'1\'';
 
 		$conn = $this->object->acquire();
 
@@ -197,7 +196,7 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 	public function testAffectedRows()
 	{
-		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (1)';
+		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (\'1\')';
 
 		$conn = $this->object->acquire();
 
@@ -224,11 +223,11 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 		$this->object->release( $conn );
 
-		$this->assertEquals( 'INSERT INTO "mw_unit_test" ("name") VALUES (\'(\\\\\'\')\')', strval( $stmt ) );
+		$this->assertRegexp( '/^INSERT INTO "mw_unit_test" \("name"\) VALUES \(\'\(.*\\\'\)\'\)$/', strval( $stmt ) );
 	}
 
 
-	public function testStmtSimpleBindOne()
+	public function testStmtSimpleBind()
 	{
 		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (?)';
 
@@ -244,53 +243,19 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 	}
 
 
-	public function testStmtSimpleBindTwo()
-	{
-		$sqlinsert2 =  'INSERT INTO "mw_unit_test" ("id", "name") VALUES (?, ?)';
-
-		$conn = $this->object->acquire();
-
-		$stmt2 = $conn->create( $sqlinsert2 );
-		$stmt2->bind( 1, null, \Aimeos\MW\DB\Statement\Base::PARAM_NULL);
-		$stmt2->bind( 2, 0.12, \Aimeos\MW\DB\Statement\Base::PARAM_FLOAT);
-		$stmt2->execute()->finish();
-
-		$this->object->release( $conn );
-
-		$this->assertEquals( 'INSERT INTO "mw_unit_test" ("id", "name") VALUES (NULL, 0.12)', strval( $stmt2 ) );
-	}
-
-
-	public function testStmtSimpleBindThree()
-	{
-		$sqlinsert3 =  'INSERT INTO "mw_unit_test" ("name", "id") VALUES (\'?te?st?\', ?)';
-
-		$conn = $this->object->acquire();
-
-		$stmt2 = $conn->create( $sqlinsert3 );
-		$stmt2->bind( 1, null, \Aimeos\MW\DB\Statement\Base::PARAM_NULL);
-		$stmt2->execute()->finish();
-
-		$this->object->release( $conn );
-
-		$this->assertEquals( 'INSERT INTO "mw_unit_test" ("name", "id") VALUES (\'?te?st?\', NULL)', strval( $stmt2 ) );
-	}
-
-
 	public function testStmtSimpleBindParamType()
 	{
-		$sqlinsert2 =  'INSERT INTO "mw_unit_test" ("id", "name") VALUES (?, ?)';
+		$sqlinsert2 =  'INSERT INTO "mw_unit_test" ("name") VALUES (?)';
 
 		$conn = $this->object->acquire();
 
 		$stmt2 = $conn->create( $sqlinsert2 );
-		$stmt2->bind( 1, 0, \Aimeos\MW\DB\Statement\Base::PARAM_NULL);
-		$stmt2->bind( 2, 0.15, 123);
+		$stmt2->bind( 1, 0.15, 123);
 		$result = $stmt2->execute();
 		$rows = $result->affectedRows();
 		$result->finish();
 
-		$this->assertEquals( 'INSERT INTO "mw_unit_test" ("id", "name") VALUES (NULL, 0.15)', strval( $stmt2 ) );
+		$this->assertEquals( 'INSERT INTO "mw_unit_test" ("name") VALUES (\'0.15\')', strval( $stmt2 ) );
 		$this->assertEquals( 1, $rows );
 	}
 
@@ -314,7 +279,7 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 	}
 
 
-	public function testStmtPreparedBindOne()
+	public function testStmtPreparedBind()
 	{
 		$sqlinsert = 'INSERT INTO "mw_unit_test" ("name") VALUES (?)';
 
@@ -322,24 +287,6 @@ class DBALTest extends \PHPUnit_Framework_TestCase
 
 		$stmt = $conn->create( $sqlinsert, \Aimeos\MW\DB\Connection\Base::TYPE_PREP );
 		$stmt->bind( 1, 'test' );
-		$result = $stmt->execute();
-		$rows = $result->affectedRows();
-		$result->finish();
-
-		$this->object->release( $conn );
-
-		$this->assertEquals( 1, $rows );
-	}
-
-
-	public function testStmtPreparedBindTwo()
-	{
-		$sqlinsert2 = 'INSERT INTO "mw_unit_test" ("name", "id") VALUES (\'?te?st?\', ?)';
-
-		$conn = $this->object->acquire();
-
-		$stmt = $conn->create( $sqlinsert2, \Aimeos\MW\DB\Connection\Base::TYPE_PREP );
-		$stmt->bind( 1, null );
 		$result = $stmt->execute();
 		$rows = $result->affectedRows();
 		$result->finish();

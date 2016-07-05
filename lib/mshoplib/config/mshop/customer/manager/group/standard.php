@@ -38,7 +38,7 @@ return array(
 			:joins
 			WHERE :cond
 			GROUP BY mcusgr."id", mcusgr."siteid", mcusgr."code", mcusgr."label",
-				mcusgr."mtime", mcusgr."editor", mcusgr."ctime" /*-orderby*/, :order /*orderby-*/
+				mcusgr."mtime", mcusgr."editor", mcusgr."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -56,6 +56,12 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_customer_group_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );

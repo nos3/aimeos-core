@@ -15,7 +15,7 @@ return array(
 				FROM "mshop_attribute_list" AS mattli
 				:joins
 				WHERE :cond
-				GROUP BY :key, mattli."id" /*-orderby*/, :order /*orderby-*/
+				GROUP BY :key, mattli."id" /*-columns*/ , :columns /*columns-*/
 				/*-orderby*/ ORDER BY :order /*orderby-*/
 				LIMIT :size OFFSET :start
 			) AS list
@@ -85,7 +85,7 @@ return array(
 			GROUP BY mattli."id", mattli."siteid", mattli."parentid", mattli."typeid",
 				mattli."domain", mattli."refid", mattli."start", mattli."end",
 				mattli."config", mattli."pos", mattli."status", mattli."mtime",
-				mattli."ctime", mattli."editor" /*-orderby*/, :order /*orderby-*/
+				mattli."ctime", mattli."editor" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -103,7 +103,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_attribute_list_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

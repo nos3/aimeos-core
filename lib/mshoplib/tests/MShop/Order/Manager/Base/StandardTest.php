@@ -98,6 +98,13 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 	}
 
 
+	public function testSaveInvalid()
+	{
+		$this->setExpectedException( '\Aimeos\MShop\Order\Exception' );
+		$this->object->saveItem( new \Aimeos\MShop\Locale\Item\Standard() );
+	}
+
+
 	public function testSaveUpdateDeleteItem()
 	{
 		$search = $this->object->createSearch();
@@ -223,7 +230,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$expr[] = $search->compare( '==', 'order.base.address.postal', '20146' );
 		$expr[] = $search->compare( '==', 'order.base.address.city', 'Hamburg' );
 		$expr[] = $search->compare( '==', 'order.base.address.state', 'Hamburg' );
-		$expr[] = $search->compare( '==', 'order.base.address.countryid', 'de' );
+		$expr[] = $search->compare( '==', 'order.base.address.countryid', 'DE' );
 		$expr[] = $search->compare( '==', 'order.base.address.languageid', 'de' );
 		$expr[] = $search->compare( '==', 'order.base.address.telephone', '055544332211' );
 		$expr[] = $search->compare( '==', 'order.base.address.email', 'test@example.com' );
@@ -772,32 +779,12 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 	}
 
 
-	public function testGetSetSession()
-	{
-		$order = $this->object->createItem();
-		$order->setComment( 'test comment' );
-
-		$this->object->setSession( $order, 'test' );
-		$session = $this->object->getSession( 'test' );
-
-		$this->assertInstanceof( '\\Aimeos\\MShop\\Order\\Item\\Base\\Iface', $session );
-		$this->assertEquals( 'test comment', $order->getComment() );
-		$this->assertEquals( $order, $session );
-	}
-
-
-	public function testGetSetSessionLock()
-	{
-		$lock = $this->object->getSessionLock( 'test' );
-		$this->assertEquals( \Aimeos\MShop\Order\Manager\Base\Base::LOCK_DISABLE, $lock );
-
-		$this->object->setSessionLock( \Aimeos\MShop\Order\Manager\Base\Base::LOCK_ENABLE, 'test' );
-
-		$lock = $this->object->getSessionLock( 'test' );
-		$this->assertEquals( \Aimeos\MShop\Order\Manager\Base\Base::LOCK_ENABLE, $lock );
-	}
-
-
+	/**
+	 * Returns an order base item
+	 *
+	 * @return \Aimeos\MShop\Order\Item\Base\Iface Order base item
+	 * @throws \Exception If no found
+	 */
 	protected function getOrderItem()
 	{
 		$search = $this->object->createSearch();

@@ -12,7 +12,11 @@ namespace Aimeos\MW\Setup\Task;
 /**
  * Creates all platform specific tables
  */
+<<<<<<< HEAD
 class TablesCreatePlatform extends \Aimeos\MW\Setup\Task\Base
+=======
+class TablesCreatePlatform extends TablesCreateMShop
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 {
 	/**
 	 * Returns the list of task names which this task depends on.
@@ -46,6 +50,7 @@ class TablesCreatePlatform extends \Aimeos\MW\Setup\Task\Base
 
 		$ds = DIRECTORY_SEPARATOR;
 
+<<<<<<< HEAD
 		$files = array(
 			'db-index' => realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'index-mysql.sql',
 			'db-order' => realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'order-mysql.sql',
@@ -53,12 +58,22 @@ class TablesCreatePlatform extends \Aimeos\MW\Setup\Task\Base
 		);
 
 		$this->setup( $files );
+=======
+		$this->setupPlatform( 'db-index', 'mysql', realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'index-mysql.sql' );
+		$this->setupPlatform( 'db-order', 'mysql', realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'order-mysql.sql' );
+		$this->setupPlatform( 'db-text', 'mysql', realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'text-mysql.sql' );
+
+		$this->setupPlatform( 'db-index', 'pgsql', realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'index-pgsql.sql' );
+		$this->setupPlatform( 'db-order', 'pgsql', realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'order-pgsql.sql' );
+		$this->setupPlatform( 'db-text', 'pgsql', realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'text-pgsql.sql' );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	}
 
 
 	/**
 	 * Creates all required tables if they doesn't exist
 	 */
+<<<<<<< HEAD
 	protected function setup( array $files )
 	{
 		foreach( $files as $rname => $filepath )
@@ -96,5 +111,16 @@ class TablesCreatePlatform extends \Aimeos\MW\Setup\Task\Base
 				}
 			}
 		}
+=======
+	protected function setupPlatform( $rname, $adapter, $filepath )
+	{
+		$schema = $this->getSchema( $rname );
+
+		if( $adapter !== $schema->getName() ) {
+			return;
+		}
+
+		parent::setup( array( $rname => $filepath ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	}
 }

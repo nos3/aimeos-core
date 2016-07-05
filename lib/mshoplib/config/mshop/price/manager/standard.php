@@ -50,7 +50,7 @@ return array(
 			GROUP BY mpri."id", mpri."siteid", mpri."typeid", mpri."currencyid",
 				mpri."domain", mpri."label", mpri."quantity", mpri."value",
 				mpri."costs", mpri."rebate", mpri."taxrate", mpri."status",
-				mpri."mtime", mpri."editor", mpri."ctime" /*-orderby*/, :order /*orderby-*/
+				mpri."mtime", mpri."editor", mpri."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -68,6 +68,12 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_price_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );

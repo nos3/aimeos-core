@@ -90,6 +90,14 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals( $item, $this->object->getItem( $item->getId() ) );
 	}
 
+
+	public function testSaveInvalid()
+	{
+		$this->setExpectedException( '\Aimeos\MShop\Supplier\Exception' );
+		$this->object->saveItem( new \Aimeos\MShop\Locale\Item\Standard() );
+	}
+
+
 	public function testSaveUpdateDeleteItem()
 	{
 		$search = $this->object->createSearch();
@@ -165,7 +173,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
 		$expr[] = $search->compare( '!=', 'supplier.address.id', null );
 		$expr[] = $search->compare( '!=', 'supplier.address.siteid', null );
-		$expr[] = $search->compare( '!=', 'supplier.address.parentid', '' );
+		$expr[] = $search->compare( '!=', 'supplier.address.parentid', 0 );
 		$expr[] = $search->compare( '==', 'supplier.address.company', 'Example company' );
 		$expr[] = $search->compare( '==', 'supplier.address.vatid', 'DE999999999' );
 		$expr[] = $search->compare( '==', 'supplier.address.salutation', 'mrs' );
@@ -178,7 +186,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 		$expr[] = $search->compare( '==', 'supplier.address.postal', '20457' );
 		$expr[] = $search->compare( '==', 'supplier.address.city', 'Hamburg' );
 		$expr[] = $search->compare( '==', 'supplier.address.languageid', 'de' );
-		$expr[] = $search->compare( '==', 'supplier.address.countryid', 'de' );
+		$expr[] = $search->compare( '==', 'supplier.address.countryid', 'DE' );
 		$expr[] = $search->compare( '==', 'supplier.address.telephone', '055544332211' );
 		$expr[] = $search->compare( '==', 'supplier.address.telefax', '055544332212' );
 		$expr[] = $search->compare( '==', 'supplier.address.email', 'test@example.com' );

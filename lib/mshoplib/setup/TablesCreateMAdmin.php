@@ -13,7 +13,7 @@ namespace Aimeos\MW\Setup\Task;
 /**
  * Creates all required tables.
  */
-class TablesCreateMAdmin extends \Aimeos\MW\Setup\Task\Base
+class TablesCreateMAdmin extends TablesCreateMShop
 {
 	/**
 	 * Returns the list of task names which this task depends on.
@@ -54,6 +54,7 @@ class TablesCreateMAdmin extends \Aimeos\MW\Setup\Task\Base
 			'db-queue' => realpath( __DIR__ ) . $ds . 'default' . $ds . 'schema' . $ds . 'queue.php',
 		);
 
+<<<<<<< HEAD
 		$this->setup( $files );
 	}
 
@@ -111,5 +112,8 @@ class TablesCreateMAdmin extends \Aimeos\MW\Setup\Task\Base
 				}
 			}
 		}
+=======
+		$this->setupSchema( $files );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	}
 }

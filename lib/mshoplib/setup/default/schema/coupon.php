@@ -7,6 +7,7 @@
 
 
 return array(
+<<<<<<< HEAD
 	'sequence' => array(
 		'seq_mscou_id' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 
@@ -19,6 +20,8 @@ return array(
 			return $schema;
 		},
 	),
+=======
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	'table' => array(
 
 		'mshop_coupon' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
@@ -54,7 +57,11 @@ return array(
 			$table->addColumn( 'id', 'integer', array( 'autoincrement' => true ) );
 			$table->addColumn( 'parentid', 'integer', array() );
 			$table->addColumn( 'siteid', 'integer', array() );
+<<<<<<< HEAD
 			$table->addColumn( 'code', 'string', array( 'length' => 32, 'customSchemaOptions' => array( 'collation' => 'utf8_bin' ) ) );
+=======
+			$table->addColumn( 'code', 'string', array( 'length' => 32 ) );
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 			$table->addColumn( 'count', 'integer', array() );
 			$table->addColumn( 'start', 'datetime', array( 'notnull' => false ) );
 			$table->addColumn( 'end', 'datetime', array( 'notnull' => false ) );

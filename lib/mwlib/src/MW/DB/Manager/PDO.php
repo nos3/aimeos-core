@@ -65,22 +65,14 @@ class PDO implements \Aimeos\MW\DB\Manager\Iface
 
 				$limit = $this->config->get( 'resource/' . $name . '/limit', -1 );
 
-				if( $limit >= 0 && $this->count[$name] >= $limit ) {
-					throw new \Aimeos\MW\DB\Exception( sprintf( 'Maximum number of connections (%1$d) exceeded', $limit ) );
+				if( $limit >= 0 && $this->count[$name] >= $limit )
+				{
+					$msg = sprintf( 'Maximum number of connections (%1$d) for "%2$s" exceeded', $limit, $name );
+					throw new \Aimeos\MW\DB\Exception( $msg );
 				}
 
 				$this->connections[$name] = array( $this->createConnection( $name, $adapter ) );
 				$this->count[$name]++;
-			}
-
-			switch( $adapter )
-			{
-				case 'sqlite':
-				case 'sqlite3':
-					// SQLite uses page locking which prevents a second connection from
-					// reading from tables which are already in use. Fortunately, it is
-					// possible withing the same connection to do the update.
-					return $this->connections[$name][0];
 			}
 
 			return array_pop( $this->connections[$name] );

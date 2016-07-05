@@ -21,7 +21,16 @@ return array(
 			) VALUES (
 				?, ?, ?, ?, ?, ?, ?, ?, ?
 			)
-		'
+		',
+		'pgsql' => '
+			INSERT INTO "mshop_index_attribute" (
+				"prodid", "siteid", "attrid", "listtype", "type", "code",
+				"mtime", "editor", "ctime"
+			) VALUES (
+				?, ?, ?, ?, ?, ?, ?, ?, ?
+			)
+			ON CONFLICT DO NOTHING
+		',
 	),
 	'search' => array(
 		'ansi' => '
@@ -29,7 +38,7 @@ return array(
 			FROM "mshop_product" AS mpro
 			:joins
 			WHERE :cond
-			GROUP BY mpro."id" /*-orderby*/, :order /*orderby-*/
+			GROUP BY mpro."id" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -52,12 +61,10 @@ return array(
 			WHERE "ctime" < ? AND "siteid" = ?
 		'
 	),
-	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
-	),
 	'optimize' => array(
 		'mysql' => array(
 			'OPTIMIZE TABLE "mshop_index_attribute"',
 		),
+		'pgsql' => array(),
 	),
 );

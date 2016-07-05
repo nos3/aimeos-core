@@ -38,18 +38,9 @@ class CatalogListAddTestData extends \Aimeos\MW\Setup\Task\Base
 
 
 	/**
-	 * Executes the task for MySQL databases.
-	 */
-	protected function mysql()
-	{
-		$this->process();
-	}
-
-
-	/**
 	 * Adds catalog test data.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$iface = '\\Aimeos\\MShop\\Context\\Item\\Iface';
 		if( !( $this->additional instanceof $iface ) ) {
@@ -212,8 +203,6 @@ class CatalogListAddTestData extends \Aimeos\MW\Setup\Task\Base
 		$listItemTypeIds = array();
 		$listItemType = $catalogListTypeManager->createItem();
 
-		$this->conn->begin();
-
 		foreach( $testdata['catalog/lists/type'] as $key => $dataset )
 		{
 			$listItemType->setId( null );
@@ -225,6 +214,8 @@ class CatalogListAddTestData extends \Aimeos\MW\Setup\Task\Base
 			$catalogListTypeManager->saveItem( $listItemType );
 			$listItemTypeIds[$key] = $listItemType->getId();
 		}
+
+		$this->conn->begin();
 
 		$listItem = $catalogListManager->createItem();
 		foreach( $testdata['catalog/lists'] as $dataset )

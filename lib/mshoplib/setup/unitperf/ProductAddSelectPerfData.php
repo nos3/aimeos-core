@@ -15,7 +15,7 @@ namespace Aimeos\MW\Setup\Task;
  */
 class ProductAddSelectPerfData extends \Aimeos\MW\Setup\Task\ProductAddBasePerfData
 {
-	private $count = 1000;
+	private $count = 10;
 
 
 	/**
@@ -44,18 +44,9 @@ class ProductAddSelectPerfData extends \Aimeos\MW\Setup\Task\ProductAddBasePerfD
 
 
 	/**
-	 * Executes the task for MySQL databases.
-	 */
-	protected function mysql()
-	{
-		$this->process();
-	}
-
-
-	/**
 	 * Insert product data.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$this->msg( 'Adding product selection performance data', 0 );
 
@@ -163,7 +154,7 @@ class ProductAddSelectPerfData extends \Aimeos\MW\Setup\Task\ProductAddBasePerfD
 	/**
 	 * Returns the price item with the lowest value
 	 *
-	 * @param \Aimeos\MShop\Price\Item\Iface $price
+	 * @param \Aimeos\MShop\Price\Item\Iface|null $price
 	 * @param array $prices
 	 * @return \Aimeos\MShop\Price\Item\Iface
 	 */

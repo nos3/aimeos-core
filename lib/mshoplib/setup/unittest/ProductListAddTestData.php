@@ -39,18 +39,9 @@ class ProductListAddTestData extends \Aimeos\MW\Setup\Task\Base
 
 
 	/**
-	 * Executes the task for MySQL databases.
-	 */
-	protected function mysql()
-	{
-		$this->process();
-	}
-
-
-	/**
 	 * Adds product test data.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$iface = '\\Aimeos\\MShop\\Context\\Item\\Iface';
 		if( !( $this->additional instanceof $iface ) ) {
@@ -301,11 +292,11 @@ class ProductListAddTestData extends \Aimeos\MW\Setup\Task\Base
 	 * Adds the product-list test data.
 	 *
 	 * @param array $testdata Associative list of key/list pairs
-	 * @param \Aimeos\MShop\Product\Manager\Iface $productManager Product Manager
+	 * @param \Aimeos\MShop\Common\Manager\Iface $productManager Product Manager
 	 * @param array $refIds Associative list of key/list pairs
 	 * @throws \Aimeos\MW\Setup\Exception If no type ID is found
 	 */
-	private function addProductData( array $testdata, $productManager, array $refIds, array $keys )
+	private function addProductData( array $testdata, \Aimeos\MShop\Common\Manager\Iface $productManager, array $refIds, array $keys )
 	{
 		$parentIds = $this->getProductIds( $productManager, $testdata );
 		$refIds['product'] = $this->getProductRefIds( $productManager, $keys );

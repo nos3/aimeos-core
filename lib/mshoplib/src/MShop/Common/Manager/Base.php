@@ -25,7 +25,6 @@ abstract class Base
 	private $context;
 	private $resourceName;
 	private $stmts = array();
-	private $keySeparator = '.';
 	private $subManagers = array();
 
 
@@ -58,7 +57,14 @@ abstract class Base
 	 */
 	public function createSearch( $default = false )
 	{
-		return new \Aimeos\MW\Criteria\SQL( new \Aimeos\MW\DB\Connection\None() );
+		$dbm = $this->context->getDatabaseManager();
+		$db = $this->getResourceName();
+
+		$conn = $dbm->acquire( $db );
+		$search = new \Aimeos\MW\Criteria\SQL( $conn );
+		$dbm->release( $conn, $db );
+
+		return $search;
 	}
 
 
@@ -232,31 +238,6 @@ abstract class Base
 
 
 	/**
-	 * Returns the cached statement for the given key or creates a new prepared statement.
-	 * If no SQL string is given, the key is used to retrieve the SQL string from the configuration.
-	 *
-	 * @param \Aimeos\MW\DB\Connection\Iface $conn Database connection
-	 * @param string $cfgkey Unique key for the SQL
-	 * @param string|null $sql SQL string if it shouldn't be retrieved from the configuration
-	 */
-	protected function getCachedStatement( \Aimeos\MW\DB\Connection\Iface $conn, $cfgkey, $sql = null )
-	{
-		if( !isset( $this->stmts['stmt'][$cfgkey] ) || !isset( $this->stmts['conn'][$cfgkey] )
-			|| $conn !== $this->stmts['conn'][$cfgkey]
-		) {
-			if( $sql === null ) {
-				$sql = $this->getSqlConfig( $cfgkey );
-			}
-
-			$this->stmts['stmt'][$cfgkey] = $conn->create( $sql );
-			$this->stmts['conn'][$cfgkey] = $conn;
-		}
-
-		return $this->stmts['stmt'][$cfgkey];
-	}
-
-
-	/**
 	 * Returns the context object.
 	 *
 	 * @return \Aimeos\MShop\Context\Item\Iface Context object
@@ -331,12 +312,13 @@ abstract class Base
 	 * adapter.
 	 *
 	 * @param string $path Configuration path to the SQL statement
-	 * @param string|null ANSI or database specific SQL statement
+	 * @return string ANSI or database specific SQL statement
 	 */
 	protected function getSqlConfig( $path )
 	{
 		$config = $this->getContext()->getConfig();
 		$adapter = $config->get( 'resource/' . $this->getResourceName() . '/adapter' );
+
 		return $config->get( $path . '/' . $adapter, $config->get( $path . '/ansi', $path ) );
 	}
 
@@ -394,102 +376,6 @@ abstract class Base
 		}
 
 		return $this->subManagers[$key];
-	}
-
-
-	/**
-	 * Returns a list of unique criteria names shortend by the last element after the ''
-	 *
-	 * @param string[] $prefix Required base prefixes of the search keys
-	 * @param \Aimeos\MW\Criteria\Expression\Iface|null Criteria object
-	 * @return array List of shortend criteria names
-	 */
-	private function getCriteriaKeys( array $prefix, \Aimeos\MW\Criteria\Expression\Iface $expr = null )
-	{
-		if( $expr === null ) { return array(); }
-
-		$result = array();
-
-		foreach( $this->getCriteriaNames( $expr ) as $item )
-		{
-			if( ( $pos = strpos( $item, '(' ) ) !== false ) {
-				$item = substr( $item, 0, $pos );
-			}
-
-			if( ( $pos = strpos( $item, ':' ) ) !== false ) {
-				$item = substr( $item, $pos + 1 );
-			}
-
-			$result = array_merge( $result, $this->cutNameTail( $prefix, $item ) );
-		}
-
-		return $result;
-	}
-
-
-	/**
-	 * Returns a sorted list of required criteria keys.
-	 *
-	 * @param \Aimeos\MW\Criteria\Iface $criteria Search criteria object
-	 * @param string[] $required List of prefixes of required search conditions
-	 * @return string[] Sorted list of criteria keys
-	 */
-	private function getCriteriaKeyList( \Aimeos\MW\Criteria\Iface $criteria, array $required )
-	{
-		$keys = array_merge( $required, $this->getCriteriaKeys( $required, $criteria->getConditions() ) );
-
-		foreach( $criteria->getSortations() as $sortation ) {
-			$keys = array_merge( $keys, $this->getCriteriaKeys( $required, $sortation ) );
-		}
-
-		$keys = array_unique( array_merge( $required, $keys ) );
-		sort( $keys );
-
-		return $keys;
-	}
-
-
-	/**
-	 * Cuts the last part separated by a dot repeatedly and returns the list of resulting string.
-	 *
-	 * @param string[] $prefix Required base prefixes of the search keys
-	 * @param string $string String containing parts separated by dots
-	 * @return array List of resulting strings
-	 */
-	private function cutNameTail( array $prefix, $string )
-	{
-		$result = array();
-		$noprefix = true;
-		$strlen = strlen( $string );
-		$sep = $this->getKeySeparator();
-
-		foreach( $prefix as $key )
-		{
-			$len = strlen( $key );
-
-			if( strncmp( $string, $key, $len ) === 0 )
-			{
-				if( $strlen > $len && ( $pos = strrpos( $string, $sep ) ) !== false )
-				{
-					$result[] = $string = substr( $string, 0, $pos );
-					$result = array_merge( $result, $this->cutNameTail( $prefix, $string ) );
-				}
-
-				$noprefix = false;
-				break;
-			}
-		}
-
-		if( $noprefix )
-		{
-			if( ( $pos = strrpos( $string, $sep ) ) !== false ) {
-				$result[] = substr( $string, 0, $pos );
-			} else {
-				$result[] = $string;
-			}
-		}
-
-		return $result;
 	}
 
 
@@ -622,31 +508,28 @@ abstract class Base
 
 
 	/**
-	 * Returns a list of criteria names from a expression and its sub-expressions.
+	 * Returns the cached statement for the given key or creates a new prepared statement.
+	 * If no SQL string is given, the key is used to retrieve the SQL string from the configuration.
 	 *
-	 * @param \Aimeos\MW\Criteria\Expression\Iface Criteria object
-	 * @return array List of criteria names
+	 * @param \Aimeos\MW\DB\Connection\Iface $conn Database connection
+	 * @param string $cfgkey Unique key for the SQL
+	 * @param string|null $sql SQL string if it shouldn't be retrieved from the configuration
+	 * @return \Aimeos\MW\DB\Statement\Iface Database statement object
 	 */
-	private function getCriteriaNames( \Aimeos\MW\Criteria\Expression\Iface $expr )
+	protected function getCachedStatement( \Aimeos\MW\DB\Connection\Iface $conn, $cfgkey, $sql = null )
 	{
-		if( $expr instanceof \Aimeos\MW\Criteria\Expression\Compare\Iface ) {
-			return array( $expr->getName() );
-		}
-
-		if( $expr instanceof \Aimeos\MW\Criteria\Expression\Combine\Iface )
-		{
-			$list = array();
-			foreach( $expr->getExpressions() as $item ) {
-				$list = array_merge( $list, $this->getCriteriaNames( $item ) );
+		if( !isset( $this->stmts['stmt'][$cfgkey] ) || !isset( $this->stmts['conn'][$cfgkey] )
+				|| $conn !== $this->stmts['conn'][$cfgkey]
+		) {
+			if( $sql === null ) {
+				$sql = $this->getSqlConfig( $cfgkey );
 			}
-			return $list;
+
+			$this->stmts['stmt'][$cfgkey] = $conn->create( $sql );
+			$this->stmts['conn'][$cfgkey] = $conn;
 		}
 
-		if( $expr instanceof \Aimeos\MW\Criteria\Expression\Sort\Iface ) {
-			return array( $expr->getName() );
-		}
-
-		return array();
+		return $this->stmts['stmt'][$cfgkey];
 	}
 
 
@@ -694,17 +577,6 @@ abstract class Base
 		}
 
 		return array();
-	}
-
-
-	/**
-	 * Returns the used separator inside the search keys.
-	 *
-	 * @return string Separator string (default: ".")
-	 */
-	protected function getKeySeparator()
-	{
-		return $this->keySeparator;
 	}
 
 
@@ -871,6 +743,10 @@ abstract class Base
 			$keys[] = 'orderby';
 			$find[] = ':order';
 			$replace[] = $search->getSortationString( $types, $translations );
+
+			$keys[] = 'columns';
+			$find[] = ':columns';
+			$replace[] = $search->getColumnString( $search->getSortations(), $translations );
 		}
 
 

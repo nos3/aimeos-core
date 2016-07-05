@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright Metaways Infosystems GmbH, 2011
  * @license LGPLv3, http://opensource.org/licenses/LGPL-3.0
- * @copyright Aimeos (aimeos.org), 2015
+ * @copyright Metaways Infosystems GmbH, 2011
+ * @copyright Aimeos (aimeos.org), 2015-2016
  */
 
 
@@ -22,60 +22,58 @@ class MySQLTest extends \PHPUnit_Framework_TestCase
 	public static function setUpBeforeClass()
 	{
 		$context = clone \TestHelperMShop::getContext();
-		$context->getConfig()->set( 'mshop/index/manager/text/name', 'MySQL' );
+		$config = $context->getConfig();
+		$dbadapter = $config->get( 'resource/db-index/adapter', $config->get( 'resource/db/adapter' ) );
 
-		$manager = new \Aimeos\MShop\Index\Manager\MySQL( $context );
-		$productManager = \Aimeos\MShop\Product\Manager\Factory::createManager( $context );
-
-		$search = $productManager->createSearch();
-		$conditions = array(
-			$search->compare( '==', 'product.code', array( 'CNC', 'CNE' ) ),
-			$search->compare( '==', 'product.editor', $context->getEditor() )
-		);
-		$search->setConditions( $search->combine( '&&', $conditions ) );
-		$result = $productManager->searchItems( $search, array( 'attribute', 'price', 'text', 'product' ) );
-
-		foreach( $result as $item )
+		if( $dbadapter === 'mysql' )
 		{
-			$manager->deleteItem( $item->getId() );
-			$manager->saveItem( $item );
+			$context->getConfig()->set( 'mshop/index/manager/text/name', 'MySQL' );
+			$manager = new \Aimeos\MShop\Index\Manager\MySQL( $context );
+			$productManager = \Aimeos\MShop\Product\Manager\Factory::createManager( $context );
+
+			$search = $productManager->createSearch();
+			$conditions = array(
+				$search->compare( '==', 'product.code', array( 'CNC', 'CNE' ) ),
+				$search->compare( '==', 'product.editor', $context->getEditor() )
+			);
+			$search->setConditions( $search->combine( '&&', $conditions ) );
+			$result = $productManager->searchItems( $search, array( 'attribute', 'price', 'text', 'product' ) );
+
+			foreach( $result as $item )
+			{
+				$manager->deleteItem( $item->getId() );
+				$manager->saveItem( $item );
+			}
 		}
 	}
 
 
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 *
-	 * @access protected
-	 */
 	protected function setUp()
 	{
 		$context = clone \TestHelperMShop::getContext();
-		$context->getConfig()->set( 'mshop/index/manager/text/name', 'MySQL' );
-
 		$this->editor = $context->getEditor();
 		$config = $context->getConfig();
 
-		$dbadapter = $config->get( 'resource/db-product/adapter', $config->get( 'resource/db/adapter' ) );
+		$dbadapter = $config->get( 'resource/db-index/adapter', $config->get( 'resource/db/adapter' ) );
 
 		if( $dbadapter !== 'mysql' ) {
 			$this->markTestSkipped( 'MySQL specific test' );
 		}
 
+		$context->getConfig()->set( 'mshop/index/manager/text/name', 'MySQL' );
 		$this->object = new \Aimeos\MShop\Index\Manager\MySQL( $context );
 	}
 
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 *
-	 * @access protected
-	 */
 	protected function tearDown()
 	{
 		unset( $this->object );
+	}
+
+
+	public function testCreateSearch()
+	{
+		$this->assertInstanceOf( '\Aimeos\MW\Criteria\MySQL', $this->object->createSearch() );
 	}
 
 

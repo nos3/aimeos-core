@@ -38,18 +38,9 @@ class MediaListAddTestData extends \Aimeos\MW\Setup\Task\Base
 
 
 	/**
-	 * Executes the task for MySQL databases.
-	 */
-	protected function mysql()
-	{
-		$this->process();
-	}
-
-
-	/**
 	 * Adds media test data.
 	 */
-	protected function process()
+	public function migrate()
 	{
 		$iface = '\\Aimeos\\MShop\\Context\\Item\\Iface';
 		if( !( $this->additional instanceof $iface ) ) {
@@ -204,8 +195,6 @@ class MediaListAddTestData extends \Aimeos\MW\Setup\Task\Base
 		$medListTypes = array();
 		$medListType = $mediaListTypeManager->createItem();
 
-		$this->conn->begin();
-
 		foreach( $testdata['media/lists/type'] as $key => $dataset )
 		{
 			$medListType->setId( null );
@@ -217,6 +206,8 @@ class MediaListAddTestData extends \Aimeos\MW\Setup\Task\Base
 			$mediaListTypeManager->saveItem( $medListType );
 			$medListTypes[$key] = $medListType->getId();
 		}
+
+		$this->conn->begin();
 
 		$medList = $mediaListManager->createItem();
 		foreach( $testdata['media/lists'] as $dataset )

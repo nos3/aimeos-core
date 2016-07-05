@@ -43,7 +43,7 @@ return array(
 			WHERE :cond
 			GROUP BY mtexlity."id", mtexlity."siteid", mtexlity."code", mtexlity."domain",
 				mtexlity."label", mtexlity."status", mtexlity."mtime", mtexlity."editor",
-				mtexlity."ctime" /*-orderby*/, :order /*orderby-*/
+				mtexlity."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -61,7 +61,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_text_list_type_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

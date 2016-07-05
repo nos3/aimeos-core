@@ -52,13 +52,19 @@ class TestHelperJsonadm
 	}
 
 
+	public static function getTemplatePaths()
+	{
+		return self::getAimeos()->getCustomPaths( 'admin/jsonadm/templates' );
+	}
+
+
 	private static function createContext( $site )
 	{
 		$ctx = new \Aimeos\MShop\Context\Item\Standard();
 		$aimeos = self::getAimeos();
 
 
-		$paths = $aimeos->getConfigPaths( 'mysql' );
+		$paths = $aimeos->getConfigPaths();
 		$paths[] = __DIR__ . DIRECTORY_SEPARATOR . 'config';
 
 		$conf = new \Aimeos\MW\Config\PHPArray( array(), $paths );
@@ -66,7 +72,7 @@ class TestHelperJsonadm
 		$ctx->setConfig( $conf );
 
 
-		$dbm = new \Aimeos\MW\DB\Manager\PDO( $conf );
+		$dbm = new \Aimeos\MW\DB\Manager\DBAL( $conf );
 		$ctx->setDatabaseManager( $dbm );
 
 
@@ -103,7 +109,7 @@ class TestHelperJsonadm
 
 	protected static function createView( \Aimeos\MW\Config\Iface $config )
 	{
-		$view = new \Aimeos\MW\View\Standard();
+		$view = new \Aimeos\MW\View\Standard( self::getTemplatePaths() );
 
 		$helper = new \Aimeos\MW\View\Helper\Config\Standard( $view, $config );
 		$view->addHelper( 'config', $helper );

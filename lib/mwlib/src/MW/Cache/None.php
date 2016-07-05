@@ -1,12 +1,11 @@
 <?php
 
 /**
- * @copyright Metaways Infosystems GmbH, 2012
  * @license LGPLv3, http://opensource.org/licenses/LGPL-3.0
- * @copyright Aimeos (aimeos.org), 2015
+ * @copyright Metaways Infosystems GmbH, 2012
+ * @copyright Aimeos (aimeos.org), 2015-2016
  * @package MW
  * @subpackage Cache
- * @version $$
  */
 
 
@@ -30,7 +29,6 @@ class None
 	 */
 	public function delete( $key )
 	{
-
 	}
 
 
@@ -42,7 +40,6 @@ class None
 	 */
 	public function deleteList( array $keys )
 	{
-
 	}
 
 
@@ -54,7 +51,6 @@ class None
 	 */
 	public function deleteByTags( array $tags )
 	{
-
 	}
 
 
@@ -121,7 +117,7 @@ class None
 	 * @param mixed $value Value that should be associated with the given path
 	 * @param array $tags List of tag strings that should be assoicated to the
 	 * 	given value in the cache
-	 * @param string|null $expires Date/time string in "YYYY-MM-DD HH:mm:ss"
+	 * @param string|null $expire Date/time string in "YYYY-MM-DD HH:mm:ss"
 	 * 	format when the cache entry expires
 	 */
 	public function set( $name, $value, array $tags = array(), $expire = null )
@@ -134,13 +130,12 @@ class None
 	 *
 	 * @param array $pairs Associative list of key/value pairs. Both must be
 	 * 	a string
-	 * @param array $expires Associative list of key/datetime pairs.
 	 * @param array $tags Associative list of key/tag or key/tags pairs that should be
 	 * 	associated to the values identified by their key. The value associated
 	 * 	to the key can either be a tag string or an array of tag strings
+	 * @param array $expires Associative list of key/datetime pairs.
 	 */
 	public function setList( array $pairs, array $tags = array(), array $expires = array() )
 	{
-
 	}
 }

@@ -17,6 +17,8 @@ namespace Aimeos\MW\Tree\Node;
  *
  * @package MW
  * @subpackage Tree
+ * @property integer $left Left number of the nested set item
+ * @property integer $right Right number of the nested set item
  */
 class DBNestedSet extends \Aimeos\MW\Tree\Node\Standard
 {
@@ -27,7 +29,7 @@ class DBNestedSet extends \Aimeos\MW\Tree\Node\Standard
 	 */
 	public function hasChildren()
 	{
-		if( $this->right > $this->left + 1 ) {
+		if( isset( $this->right ) && isset( $this->left ) && $this->right > $this->left + 1 ) {
 			return true;
 		}
 

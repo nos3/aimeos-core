@@ -9,27 +9,27 @@
 return array(
 	'aggregate' => array(
 		'ansi' => '
-		SELECT "key", COUNT("id") AS "count"
-		FROM (
-			SELECT :key AS "key", mord."id" AS "id"
-			FROM "mshop_order" AS mord
-			:joins
-			WHERE :cond
-			GROUP BY :key, mord."id" /*-orderby*/, :order /*orderby-*/
-			/*-orderby*/ ORDER BY :order /*orderby-*/
-			LIMIT :size OFFSET :start
-		) AS list
-		GROUP BY "key"
-	'
+			SELECT "key", COUNT("id") AS "count"
+			FROM (
+				SELECT :key AS "key", mord."id" AS "id"
+				FROM "mshop_order" AS mord
+				:joins
+				WHERE :cond
+				GROUP BY :key, mord."id" /*-columns*/ , :columns /*columns-*/
+				/*-orderby*/ ORDER BY :order /*orderby-*/
+				LIMIT :size OFFSET :start
+			) AS list
+			GROUP BY "key"
+		'
 	),
 	'insert' => array(
 		'ansi' => '
 			INSERT INTO "mshop_order" (
 				"baseid", "siteid", "type", "datepayment", "datedelivery",
 				"statusdelivery", "statuspayment", "relatedid", "mtime",
-				"editor", "ctime"
+				"editor", "ctime", "cdate", "cmonth", "cweek", "chour"
 			) VALUES (
-				?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+				?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 			)
 		'
 	),
@@ -62,7 +62,7 @@ return array(
 			GROUP BY mord."id", mord."baseid", mord."siteid", mord."type",
 				mord."datepayment", mord."datedelivery", mord."statuspayment", mord."statusdelivery",
 				mord."relatedid", mord."ctime", mord."mtime", mord."editor"
-				/*-orderby*/, :order /*orderby-*/
+				/*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ORDER BY :order/*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -76,7 +76,12 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_order_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
-

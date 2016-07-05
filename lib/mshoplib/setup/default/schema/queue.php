@@ -7,6 +7,7 @@
 
 
 return array(
+<<<<<<< HEAD
 	'sequence' => array(
 		'seq_maque_id' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 
@@ -15,6 +16,8 @@ return array(
 			return $schema;
 		}
 	),
+=======
+>>>>>>> a730b3c97b0dfdb987ac242f82095ef6a2a3c997
 	'table' => array(
 		'madmin_queue' => function ( \Doctrine\DBAL\Schema\Schema $schema ) {
 

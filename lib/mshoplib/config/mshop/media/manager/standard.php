@@ -47,7 +47,7 @@ return array(
 			GROUP BY mmed."id", mmed."siteid", mmed."langid", mmed."typeid",
 				mmed."link", mmed."label", mmed."status", mmed."mimetype",
 				mmed."domain", mmed."preview", mmed."mtime", mmed."editor",
-				mmed."ctime" /*-orderby*/, :order /*orderby-*/
+				mmed."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -65,7 +65,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_media_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 

@@ -15,7 +15,7 @@ return array(
 			FROM "mshop_order_base_product_attr" AS mordbaprat
 			:joins
 			WHERE :cond
-			GROUP BY :key, mordbaprat."id" /*-orderby*/, :order /*orderby-*/
+			GROUP BY :key, mordbaprat."id" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		) AS list
@@ -59,7 +59,7 @@ return array(
 			WHERE :cond
 			GROUP BY mordbaprat."id", mordbaprat."siteid", mordbaprat."attrid", mordbaprat."ordprodid",
 				mordbaprat."type", mordbaprat."code", mordbaprat."value", mordbaprat."name",
-				mordbaprat."mtime", mordbaprat."editor", mordbaprat."ctime" /*-orderby*/, :order /*orderby-*/
+				mordbaprat."mtime", mordbaprat."editor", mordbaprat."ctime" /*-columns*/ , :columns /*columns-*/
 			/*-orderby*/ ORDER BY :order /*orderby-*/
 			LIMIT :size OFFSET :start
 		'
@@ -73,7 +73,13 @@ return array(
 		'
 	),
 	'newid' => array(
-		'mysql' => 'SELECT LAST_INSERT_ID()'
+		'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+		'mysql' => 'SELECT LAST_INSERT_ID()',
+		'oracle' => 'SELECT mshop_order_base_product_attr_seq.CURRVAL FROM DUAL',
+		'pgsql' => 'SELECT lastval()',
+		'sqlite' => 'SELECT last_insert_rowid()',
+		'sqlsrv' => 'SELECT SCOPE_IDENTITY()',
+		'sqlanywhere' => 'SELECT @@IDENTITY',
 	),
 );
 
